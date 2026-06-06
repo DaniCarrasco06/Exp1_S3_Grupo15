@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import sistemadegestion.demo.dto.GuiaDto;
 import sistemadegestion.demo.dto.S3ObjectDto;
 import sistemadegestion.demo.service.AwsS3Service;
 import sistemadegestion.demo.service.EfsService;
@@ -34,7 +33,6 @@ public class AwsS3Controller {
                 .contentType(MediaType.APPLICATION_OCTET_STREAM).body(fileBytes);
     }
 
-    // Subir guía organizada por fecha y transportista: /fecha/transportista/archivo
     @PostMapping("/{bucket}/guia")
     public ResponseEntity<Void> subirGuia(
             @PathVariable String bucket,
@@ -52,16 +50,14 @@ public class AwsS3Controller {
         }
     }
 
-    // Consultar guías por transportista y fecha
     @GetMapping("/{bucket}/guias")
-    public ResponseEntity<List<GuiaDto>> listarGuias(
+    public ResponseEntity<List<S3ObjectDto>> listarGuias(
             @PathVariable String bucket,
             @RequestParam String transportista,
             @RequestParam String fecha) {
         return ResponseEntity.ok(awsS3Service.listarGuiasPorTransportistaYFecha(bucket, transportista, fecha));
     }
 
-    // Modificar guía (mover en S3)
     @PutMapping("/{bucket}/guia")
     public ResponseEntity<Void> moverGuia(
             @PathVariable String bucket,
@@ -71,7 +67,6 @@ public class AwsS3Controller {
         return ResponseEntity.ok().build();
     }
 
-    // Eliminar guía
     @DeleteMapping("/{bucket}/guia")
     public ResponseEntity<Void> eliminarGuia(
             @PathVariable String bucket,
