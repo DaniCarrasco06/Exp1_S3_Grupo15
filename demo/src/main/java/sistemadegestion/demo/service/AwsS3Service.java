@@ -124,27 +124,28 @@ public class AwsS3Service {
 			throw new S3OperationException("Error al mover el objeto de " + sourceKey + " a " + destKey, e);
 		}
 	}
-	
+
 	public List<S3ObjectDto> listarGuiasPorTransportistaYFecha(String bucket, String transportista, String fecha) {
-    try {
-        String prefix = fecha + "/" + transportista + "/";
-        log.info("Listando guías con prefijo: {}", prefix);
-        ListObjectsV2Request request = ListObjectsV2Request.builder()
-                .bucket(bucket).prefix(prefix).build();
-        ListObjectsV2Response response = s3Client.listObjectsV2(request);
-        return response.contents().stream()
-                .map(obj -> new S3ObjectDto(obj.key(), obj.size(),
-                        obj.lastModified() != null ? obj.lastModified().toString() : null))
-                .collect(Collectors.toList());
-    } catch (NoSuchBucketException e) {
-        throw new S3BucketNotFoundException(bucket, e);
-    } catch (S3Exception e) {
-        if (e.statusCode() == 403) {
-            throw new S3AccessDeniedException("listar guías del bucket: " + bucket, e);
-        }
-        throw new S3OperationException("Error al listar guías", e);
-    }
-		
+		try {
+			String prefix = fecha + "/" + transportista + "/";
+			log.info("Listando guías con prefijo: {}", prefix);
+			ListObjectsV2Request request = ListObjectsV2Request.builder()
+					.bucket(bucket).prefix(prefix).build();
+			ListObjectsV2Response response = s3Client.listObjectsV2(request);
+			return response.contents().stream()
+					.map(obj -> new S3ObjectDto(obj.key(), obj.size(),
+							obj.lastModified() != null ? obj.lastModified().toString() : null))
+					.collect(Collectors.toList());
+		} catch (NoSuchBucketException e) {
+			throw new S3BucketNotFoundException(bucket, e);
+		} catch (S3Exception e) {
+			if (e.statusCode() == 403) {
+				throw new S3AccessDeniedException("listar guías del bucket: " + bucket, e);
+			}
+			throw new S3OperationException("Error al listar guías", e);
+		}
+	}
+
 	public void deleteObject(String bucket, String key) {
 		try {
 			log.info("Eliminando objeto: {} del bucket: {}", key, bucket);
