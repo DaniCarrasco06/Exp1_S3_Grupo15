@@ -1,18 +1,17 @@
 name: Build and Push Docker Image
-
-on: 
+ 
+on:
   push:
     branches:
-      - main   
+      - main
   pull_request:
     branches:
       - main
-
 jobs: 
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest 
     steps:
+
       # Paso 1: Checkout del repositorio
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -33,8 +32,16 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-      
-      # Paso 5.5: 
+          
+     # Paso 5: Configurar credenciales de AWS para SSH, incluyendo AWS_SESSION_TOKEN
+      - name: Set up AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1  # Cambia a tu región
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+    # Paso 5.5: 
       - name: Add SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -55,13 +62,3 @@ jobs:
             # Iniciar el contenedor
             docker run -d --name my-app -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
           EOF
-
-          
-     # Paso 5: Configurar credenciales de AWS para SSH, incluyendo AWS_SESSION_TOKEN
-      - name: Set up AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1  # Cambia a tu región
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}  # Añadido aquí
