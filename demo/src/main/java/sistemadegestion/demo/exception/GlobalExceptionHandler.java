@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
-import cl.duoc.ejemplo.ms.administracion.archivos.dto.ErrorResponse;
+import sistemadegestion.demo.dto.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
