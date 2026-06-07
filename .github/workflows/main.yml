@@ -49,13 +49,23 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      # Paso 6: Conectarse a EC2 y desplegar el contenedor
+    # Paso 6: Conectarse a EC2 y desplegar el contenedor
       - name: SSH commands to deploy
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.USER_SERVER }}@${{ secrets.EC2_HOST }} << EOF
-            echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-            docker stop my-app || true
-            docker rm my-app || true
-            docker run -d --name my-app -p 8080:8080 -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} -e AWS_SESSION_TOKEN=${{ secrets.AWS_SESSION_TOKEN }} -e AWS_DEFAULT_REGION=us-east-1 ${{ secrets.DOCKERHUB_USERNAME }}/my-app:latest
-          EOF
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${{ secrets.USER_SERVER }}@${{ secrets.EC2_HOST }} \
+            "echo $DOCKERHUB_TOKEN | docker login -u $DOCKERHUB_USERNAME --password-stdin && \
+             docker pull $DOCKERHUB_USERNAME/my-app:latest && \
+             docker stop my-app || true && \
+             docker rm my-app || true && \
+             docker run -d --name my-app -p 8080:8080 \
+               -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+               -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+               -e AWS_SESSION_TOKEN=$AWS_SESSION_TOKEN \
+               -e AWS_DEFAULT_REGION=us-east-1 \
+               $DOCKERHUB_USERNAME/my-app:latest"
