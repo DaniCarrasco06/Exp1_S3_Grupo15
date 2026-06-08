@@ -41,7 +41,7 @@ public class AwsS3Controller {
             @RequestParam String numeroGuia,
             @RequestParam("file") MultipartFile file) {
         try {
-            String key = fecha + "/" + transportista + "/" + numeroGuia;
+            String key = "pdfs/" + fecha + "/" + transportista + "/" + numeroGuia;;
             efsService.saveToEfs(key, file);
             awsS3Service.upload(bucket, key, file);
             return ResponseEntity.status(HttpStatus.CREATED).build();
